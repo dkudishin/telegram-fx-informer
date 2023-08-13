@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class BotUserService {
 
     public BotUser saveUser(User apiUser) {
         BotUser user = repository.save(BotUser.from(apiUser));
-        log.info("saved a user into the DB: "+ user);
+        log.info("saved a user to the DB: "+ user);
         return user;
     }
 
@@ -33,5 +34,9 @@ public class BotUserService {
 
     public Optional<BotUser> loadUser(long id) {
         return repository.findById(id);
+    }
+
+    public List<BotUser> findAllUsers() {
+        return repository.findAll();
     }
 }

@@ -6,4 +6,5 @@ it actually displays features that are closer to real life and may be considered
 * Telegram Bot API usage
 * Calling REST endpoints with Spring's RestTemplate
 * Parsing JSON objects and extracting data
-* Persisting the data via Spring's JPA Repositories (purely to demontrate another option on top of the previous two already used in "simpletasklist")
+* Persisting the data via Spring's JPA Repositories (purely to demonstrate another option on top of the previous two already used in "simpletasklist")
+* Using one-to-many relationships 

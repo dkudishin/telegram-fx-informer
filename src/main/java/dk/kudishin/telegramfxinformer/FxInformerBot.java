@@ -1,8 +1,12 @@
 package dk.kudishin.telegramfxinformer;
 
+import dk.kudishin.telegramfxinformer.domain.BotUser;
+import dk.kudishin.telegramfxinformer.domain.FxRate;
 import dk.kudishin.telegramfxinformer.domain.FxRateJsonObject;
+import dk.kudishin.telegramfxinformer.domain.RateAlert;
 import dk.kudishin.telegramfxinformer.services.BotUserService;
 import dk.kudishin.telegramfxinformer.services.FxRateService;
+import dk.kudishin.telegramfxinformer.services.RateAlertService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,12 +34,14 @@ public class FxInformerBot extends TelegramLongPollingBot {
 
     private final FxRateService fxRateService;
     private final BotUserService botUserService;
+    private final RateAlertService rateAlertService;
 
     private final Logger log = LoggerFactory.getLogger(FxInformerBot.class);
 
-    public FxInformerBot(FxRateService fxRateService, BotUserService botUserService) {
+    public FxInformerBot(FxRateService fxRateService, BotUserService botUserService, RateAlertService rateAlertService) {
         this.fxRateService = fxRateService;
         this.botUserService = botUserService;
+        this.rateAlertService = rateAlertService;
     }
 
     @Override
@@ -67,7 +73,10 @@ public class FxInformerBot extends TelegramLongPollingBot {
     private void processMessage(Update update) {
         if(update.getMessage().getText().startsWith("Get Fx Rate!")) {
             try {
-                sendFxRateMessage(update.getMessage().getChatId());
+                FxRate rate = sendFxRateMessage(update.getMessage().getChatId());
+                rateAlertService.saveAlertToDb(
+                        new RateAlert(BotUser.from(update.getMessage().getFrom()),
+                                rate));
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -93,21 +102,23 @@ public class FxInformerBot extends TelegramLongPollingBot {
     }
 
 
-    private void sendFxRateMessage(long chatId) throws TelegramApiException {
+    private FxRate sendFxRateMessage(long chatId) throws TelegramApiException {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
         try {
             FxRateJsonObject fx = fxRateService.queryForFxRate();
-            fxRateService.saveFxRate(fx);
+            FxRate fxRate = fxRateService.saveFxRate(fx);
             message.setText(fx.getPrintableMessage());
             message.setReplyMarkup(getKeyboardForText("Get Fx Rate!"));
             execute(message);
+            return fxRate;
         } catch (TelegramApiException e) {
             e.printStackTrace();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 
     private void sendDefaultMessage(long chatId) throws TelegramApiException {

@@ -41,7 +41,7 @@ public class FxRateService {
 
     public FxRate saveFxRate(FxRateJsonObject fxRateJsonObject) {
         FxRate fxRate = repository.save(FxRate.from(fxRateJsonObject));
-        log.info("saved an fx rate to a DB: "+ fxRate);
+        log.info("saved an fx rate to the DB: "+ fxRate);
         return fxRate;
     }
 }
