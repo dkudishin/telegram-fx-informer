@@ -1,0 +1,136 @@
+package dk.kudishin.telegramfxinformer;
+
+import dk.kudishin.telegramfxinformer.domain.FxRateJsonObject;
+import dk.kudishin.telegramfxinformer.services.BotUserService;
+import dk.kudishin.telegramfxinformer.services.FxRateService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+public class FxInformerBot extends TelegramLongPollingBot {
+
+
+    @Value("${bot.token}")
+    private String token;
+    @Value("${bot.name}")
+    private String name;
+
+    private final FxRateService fxRateService;
+    private final BotUserService botUserService;
+
+    private final Logger log = LoggerFactory.getLogger(FxInformerBot.class);
+
+    public FxInformerBot(FxRateService fxRateService, BotUserService botUserService) {
+        this.fxRateService = fxRateService;
+        this.botUserService = botUserService;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return name;
+    }
+
+    @Override
+    public String getBotToken() {
+        return token;
+    }
+
+    @Override
+    public void onRegister() {
+        log.warn("Bot started");
+    }
+
+    @Override
+    public void onUpdateReceived(Update update) {
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
+
+            processUser(update);
+
+            processMessage(update);
+        }
+    }
+
+    private void processMessage(Update update) {
+        if(update.getMessage().getText().startsWith("Get Fx Rate!")) {
+            try {
+                sendFxRateMessage(update.getMessage().getChatId());
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (update.getMessage().getText().startsWith("/start")){
+            try {
+                sendDefaultMessage(update.getMessage().getChatId());
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            log.warn("Ignoring unsupported message");
+        }
+    }
+
+    private void processUser(Update update) {
+        User apiUser = update.getMessage().getFrom();
+        if (botUserService.isUserRegistered(apiUser)) {
+            log.info("Message from existing user with id "+ apiUser.getId());
+        } else {
+            log.warn("Message from a new user with id "+ apiUser.getId());
+            botUserService.saveUser(apiUser);
+        }
+    }
+
+
+    private void sendFxRateMessage(long chatId) throws TelegramApiException {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        try {
+            FxRateJsonObject fx = fxRateService.queryForFxRate();
+            fxRateService.saveFxRate(fx);
+            message.setText(fx.getPrintableMessage());
+            message.setReplyMarkup(getKeyboardForText("Get Fx Rate!"));
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void sendDefaultMessage(long chatId) throws TelegramApiException {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Welcome! This bot sends Fx Rate updates. Hit the button to start.");
+        ReplyKeyboardMarkup replyKeyboardMarkup = getKeyboardForText("Get Fx Rate!");
+        message.setReplyMarkup(replyKeyboardMarkup);
+        execute(message);
+    }
+
+    private ReplyKeyboardMarkup getKeyboardForText(String... buttons) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow keyboardFirstRow = new KeyboardRow();
+        Arrays.stream(buttons).forEach(keyboardFirstRow::add);
+        keyboard.add(keyboardFirstRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+        return replyKeyboardMarkup;
+    }
+
+}
