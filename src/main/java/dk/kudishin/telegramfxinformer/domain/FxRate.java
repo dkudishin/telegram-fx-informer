@@ -1,7 +1,6 @@
 package dk.kudishin.telegramfxinformer.domain;
 
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,6 +32,10 @@ public class FxRate {
         fx.setRate(o.getExchangeRate());
         fx.setRateTime(o.getLastRefreshed());
         return fx;
+    }
+
+    public String getPrintableMessage() {
+        return fromCurrency + "/" + toCurrency+ " = " + rate;
     }
 
     @Override

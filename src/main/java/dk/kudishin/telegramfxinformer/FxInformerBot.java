@@ -2,13 +2,13 @@ package dk.kudishin.telegramfxinformer;
 
 import dk.kudishin.telegramfxinformer.domain.BotUser;
 import dk.kudishin.telegramfxinformer.domain.FxRate;
-import dk.kudishin.telegramfxinformer.domain.FxRateJsonObject;
 import dk.kudishin.telegramfxinformer.domain.RateAlert;
 import dk.kudishin.telegramfxinformer.services.BotUserService;
-import dk.kudishin.telegramfxinformer.services.FxRateService;
 import dk.kudishin.telegramfxinformer.services.RateAlertService;
+import dk.kudishin.telegramfxinformer.services.fx.FxRateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -38,7 +38,9 @@ public class FxInformerBot extends TelegramLongPollingBot {
 
     private final Logger log = LoggerFactory.getLogger(FxInformerBot.class);
 
-    public FxInformerBot(FxRateService fxRateService, BotUserService botUserService, RateAlertService rateAlertService) {
+    public FxInformerBot(@Qualifier("chain") FxRateService fxRateService,
+                         BotUserService botUserService,
+                         RateAlertService rateAlertService) {
         this.fxRateService = fxRateService;
         this.botUserService = botUserService;
         this.rateAlertService = rateAlertService;
@@ -107,9 +109,8 @@ public class FxInformerBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
 
         try {
-            FxRateJsonObject fx = fxRateService.queryForFxRate();
-            FxRate fxRate = fxRateService.saveFxRate(fx);
-            message.setText(fx.getPrintableMessage());
+            FxRate fxRate = fxRateService.getFxRate();
+            message.setText(fxRate.getPrintableMessage());
             message.setReplyMarkup(getKeyboardForText("Get Fx Rate!"));
             execute(message);
             return fxRate;

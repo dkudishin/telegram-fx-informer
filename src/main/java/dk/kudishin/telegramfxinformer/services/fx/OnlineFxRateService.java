@@ -1,4 +1,4 @@
-package dk.kudishin.telegramfxinformer.services;
+package dk.kudishin.telegramfxinformer.services.fx;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import dk.kudishin.telegramfxinformer.domain.FxRateJsonObject;
 import dk.kudishin.telegramfxinformer.repository.FxRateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +15,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class FxRateService {
+@Qualifier("online")
+public class OnlineFxRateService implements FxRateService {
 
     private final String url;
     private final RestTemplate restTemplate = new RestTemplateBuilder().build();
     private final FxRateRepository repository;
 
-    private final Logger log = LoggerFactory.getLogger(FxRateService.class);
+    private final Logger log = LoggerFactory.getLogger(OnlineFxRateService.class);
 
-    public FxRateService(@Value("${api.url}") String url, FxRateRepository repository) {
+    public OnlineFxRateService(@Value("${api.url}") String url, FxRateRepository repository) {
         this.url = url;
         this.repository = repository;
     }
 
-    public FxRateJsonObject queryForFxRate() throws Exception {
+    @Override
+    public FxRate getFxRate() throws Exception {
+        FxRateJsonObject fxo = queryForFxRate();
+        return saveFxRate(fxo);
+    }
+
+    private FxRateJsonObject queryForFxRate() throws Exception {
 
         ResponseEntity<String> response
                 = restTemplate.getForEntity(url, String.class);
@@ -39,7 +47,7 @@ public class FxRateService {
         return fxRateJsonObject;
     }
 
-    public FxRate saveFxRate(FxRateJsonObject fxRateJsonObject) {
+    private FxRate saveFxRate(FxRateJsonObject fxRateJsonObject) {
         FxRate fxRate = repository.save(FxRate.from(fxRateJsonObject));
         log.info("saved an fx rate to the DB: "+ fxRate);
         return fxRate;

@@ -40,9 +40,4 @@ public class FxRateJsonObject {
     @JsonProperty("9. Ask Price")
     private double askPrice;
 
-
-    public String getPrintableMessage() {
-        return fromCurrencyCode + "/" + toCurrencyCode+ " = " + askPrice;
-    }
-
 }
