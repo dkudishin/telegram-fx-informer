@@ -25,12 +25,12 @@ public class FxRate {
     private double rate;
     private LocalDateTime rateTime;
 
-    public static FxRate from(FxRateJsonObject o) {
+    public static FxRate from(FxRateDto dto) {
         FxRate fx = new FxRate();
-        fx.setFromCurrency(o.getFromCurrencyCode());
-        fx.setToCurrency(o.getToCurrencyCode());
-        fx.setRate(o.getExchangeRate());
-        fx.setRateTime(o.getLastRefreshed());
+        fx.setFromCurrency(dto.getFromCurrencyCode());
+        fx.setToCurrency(dto.getToCurrencyCode());
+        fx.setRate(dto.getExchangeRate());
+        fx.setRateTime(dto.getLastRefreshed());
         return fx;
     }
 

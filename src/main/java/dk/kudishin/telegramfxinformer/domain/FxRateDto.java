@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = false)
 @JsonRootName(value = "Realtime Currency Exchange Rate")
-public class FxRateJsonObject {
+public class FxRateDto {
 
     @JsonProperty("1. From_Currency Code")
     private String fromCurrencyCode;
