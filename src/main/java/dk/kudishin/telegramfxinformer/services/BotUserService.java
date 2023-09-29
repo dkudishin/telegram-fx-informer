@@ -1,21 +1,19 @@
 package dk.kudishin.telegramfxinformer.services;
 
 import dk.kudishin.telegramfxinformer.domain.BotUser;
-import dk.kudishin.telegramfxinformer.repository.BotUserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dk.kudishin.telegramfxinformer.repositories.BotUserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class BotUserService {
 
     private final BotUserRepository repository;
-
-    private final Logger log = LoggerFactory.getLogger(BotUserService.class);
 
     public BotUserService(BotUserRepository repository) {
         this.repository = repository;

@@ -1,17 +1,15 @@
 package dk.kudishin.telegramfxinformer.services;
 
 import dk.kudishin.telegramfxinformer.domain.RateAlert;
-import dk.kudishin.telegramfxinformer.repository.RateAlertRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dk.kudishin.telegramfxinformer.repositories.RateAlertRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class RateAlertService {
 
     private final RateAlertRepository repository;
-
-    private final Logger log = LoggerFactory.getLogger(RateAlertService.class);
 
     public RateAlertService(RateAlertRepository repository) {
         this.repository = repository;

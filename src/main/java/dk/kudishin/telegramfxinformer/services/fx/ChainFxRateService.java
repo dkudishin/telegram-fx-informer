@@ -1,19 +1,17 @@
 package dk.kudishin.telegramfxinformer.services.fx;
 
 import dk.kudishin.telegramfxinformer.domain.FxRate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @Qualifier("chain")
 public class ChainFxRateService implements FxRateService {
 
     private final FxRateService primary;
     private final FxRateService backup;
-
-    private final Logger log = LoggerFactory.getLogger(ChainFxRateService.class);
 
     public ChainFxRateService(@Qualifier("online") FxRateService primary, @Qualifier("cache") FxRateService backup) {
         this.primary = primary;

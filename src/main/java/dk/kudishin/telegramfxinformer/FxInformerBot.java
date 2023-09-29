@@ -6,8 +6,7 @@ import dk.kudishin.telegramfxinformer.domain.RateAlert;
 import dk.kudishin.telegramfxinformer.services.BotUserService;
 import dk.kudishin.telegramfxinformer.services.RateAlertService;
 import dk.kudishin.telegramfxinformer.services.fx.FxRateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FxInformerBot extends TelegramLongPollingBot {
 
@@ -35,8 +35,6 @@ public class FxInformerBot extends TelegramLongPollingBot {
     private final FxRateService fxRateService;
     private final BotUserService botUserService;
     private final RateAlertService rateAlertService;
-
-    private final Logger log = LoggerFactory.getLogger(FxInformerBot.class);
 
     public FxInformerBot(@Qualifier("chain") FxRateService fxRateService,
                          BotUserService botUserService,

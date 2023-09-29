@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.kudishin.telegramfxinformer.domain.FxRate;
 import dk.kudishin.telegramfxinformer.domain.FxRateJsonObject;
-import dk.kudishin.telegramfxinformer.repository.FxRateRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dk.kudishin.telegramfxinformer.repositories.FxRateRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @Qualifier("online")
 public class OnlineFxRateService implements FxRateService {
@@ -22,7 +22,6 @@ public class OnlineFxRateService implements FxRateService {
     private final RestTemplate restTemplate = new RestTemplateBuilder().build();
     private final FxRateRepository repository;
 
-    private final Logger log = LoggerFactory.getLogger(OnlineFxRateService.class);
 
     public OnlineFxRateService(@Value("${api.url}") String url, FxRateRepository repository) {
         this.url = url;

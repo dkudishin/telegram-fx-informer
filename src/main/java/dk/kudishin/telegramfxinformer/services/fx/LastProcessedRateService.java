@@ -1,7 +1,7 @@
 package dk.kudishin.telegramfxinformer.services.fx;
 
 import dk.kudishin.telegramfxinformer.domain.FxRate;
-import dk.kudishin.telegramfxinformer.repository.FxRateRepository;
+import dk.kudishin.telegramfxinformer.repositories.FxRateRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
